@@ -2,26 +2,33 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import VueRouter from 'vue-router'
+import VueResource from 'vue-resource'
 import goods from './components/goods/goods'
 import ratings from './components/ratings/ratings'
 import seller from './components/seller/seller'
+import VueRouter from 'vue-router'
 
 /* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  template: '<App/>',
-  components: { App }
-})
-Vue.use(VueRouter)
+
+Vue.use(VueResource)
 const routes = [
-  { path: '/goods', component: goods },
-  { path: '/ratings', component: ratings },
-  { path: '/seller', component: seller }
+  { path: '/goods', name: 'goods', component: goods },
+  { path: '/ratings', name: 'ratings', component: ratings },
+  { path: '/seller', name: 'seller', component: seller }
 ]
+Vue.use(VueRouter)
 const router = new VueRouter({
+  mode: 'history',
   routes // (缩写) 相当于 routes: routes
 })
 new Vue({
-  router
-}).$mount('#app')
+  router,
+  el: '#app',
+  VueResource,
+  template: '<App/>',
+  components: {
+    App,
+    VueRouter,
+    VueResource
+  }
+})
