@@ -20,7 +20,7 @@
 
 <script type="text/ecmascript-6">
 import header from './components/header/header.vue'
-export default{
+export default {
   data () {
     return {
       seller: {}

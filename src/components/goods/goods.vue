@@ -14,7 +14,7 @@
         <li v-for="(item,index) in goods" class="food-list food-list-hook" :key="item+index">
           <h1 class="title">{{item.name}}</h1>
           <ul>
-            <li v-for="(food,index) in item.foods" :key="food+index" class="food-item border-1px">
+            <li @click="selectFood(food)" v-for="(food,index) in item.foods" :key="food+index" class="food-item border-1px">
               <div class="icon">
                 <img :src="food.icon" alt="" width="57" height="57">
               </div>
@@ -28,7 +28,7 @@
                   <span class="now">￥{{food.price}}</span><span v-show='food.oldprice' class="old">￥{{food.oldPrice}}</span>
                 </div>
                 <div class="cartcontrol-wrapper">
-                  <cartcontrol :food="food"></cartcontrol>
+                  <cartcontrol :food="food" @add="addFood"></cartcontrol>
                 </div>
               </div>
             </li>
@@ -36,13 +36,15 @@
         </li>
       </ul>
     </div>
-    <shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
+    <shopcart ref="shopcart" :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
+    <food :food="selectedFood" ref="food"></food>
   </div>
 </template>
 <script type="text/ecmascript-6">
 import BScroll from 'better-scroll'
 import shopcart from '../../components/shopcart/shopcart'
 import cartcontrol from '../../components/cartcontrol/cartcontrol'
+import food from '../../components/food/food'
 const ERR_OK = 0
 export default {
   props: {
@@ -54,14 +56,15 @@ export default {
     return {
       goods: [],
       listHeight: [],
-      scrollY: 0
+      scrollY: 0,
+      selectedFood: {}
     }
   },
   computed: {
     currentIndex () {
       for (let i = 0; i < this.listHeight.length; i++) {
-        let height1 = this.listHeight[i]
-        let height2 = this.listHeight[i + 1]
+        const height1 = this.listHeight[i]
+        const height2 = this.listHeight[i + 1]
         if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
           return i
         }
@@ -69,7 +72,7 @@ export default {
       return 0
     },
     selectFoods () {
-      let foods = []
+      const foods = []
       this.goods.forEach(good => {
         good.foods.forEach(food => {
           if (food.count) {
@@ -98,9 +101,27 @@ export default {
       if (!event._constructed) {
         return
       }
-      let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
-      let el = foodList[index]
+      const foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      const el = foodList[index]
       this.foodScroll.scrollToElement(el, 300)
+    },
+    selectFood (food) {
+      this.selectedFood = food
+      if (this.$refs.food) {
+        this.$nextTick(() => {
+          this.$refs.food.show()
+        })
+      }
+    },
+    addFood (target) {
+      this._drop(target)
+    },
+    // 下滑线开头表示内部函数，不能被外部调用
+    _drop (target) {
+      this.$refs.shopcart.drop(target)
+      // this.$nextTick(() => {
+      //   this.$refs.shopcart.drop(target)
+      // })
     },
     _initScroll () {
       this.meunScroll = new BScroll(this.$refs.menuWrapper, {
@@ -115,11 +136,11 @@ export default {
       })
     },
     _calculateHeight () {
-      let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      const foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
       let height = 0
       this.listHeight.push(height)
       for (let i = 0; i < foodList.length; i++) {
-        let item = foodList[i]
+        const item = foodList[i]
         height += item.clientHeight
         this.listHeight.push(height)
       }
@@ -127,7 +148,8 @@ export default {
   },
   components: {
     shopcart,
-    cartcontrol
+    cartcontrol,
+    food
   }
 }
 </script>

@@ -80,7 +80,7 @@
 </template>
 <script>
 import star from '../../components/star/star'
-export default{
+export default {
   props: {
     seller: {
       type: Object
