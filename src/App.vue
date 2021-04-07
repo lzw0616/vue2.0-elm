@@ -1,7 +1,6 @@
 <template>
   <div id="app">
   <v-header :seller="seller">
-
   </v-header>
     <div class="tab">
       <div class="tab-item">
@@ -20,10 +19,17 @@
 
 <script type="text/ecmascript-6">
 import header from './components/header/header.vue'
+import { urlParse } from './common/js/util'
 export default {
   data () {
     return {
-      seller: {}
+      seller: {
+        id: (() => {
+          const queryParam = urlParse()
+          console.log('queryParam', queryParam)
+          return queryParam.id
+        })()
+      }
     }
   },
   created () {
